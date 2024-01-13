@@ -8,11 +8,24 @@ use App\Models\User;
 use App\Models\Post;
 class PostController extends Controller
 {
-    //
+    //get posts
     public function index(){
+        // return response([
+        //    'posts'=>Post::orderBy('created_at','desc')->with('user:id,name,image')->withCount('comments','likes')->get()
+        //    ->with('likes', function($like){
+        //     return $like->where('user_id',auth()->user()->id)->select('id','user_id', 'post_id')->get();
+        //    })
+        // ],200);
+        $posts = Post::orderBy('created_at', 'desc')
+        ->with('user:id,name,image')
+        ->withCount('comments', 'likes')
+        ->with(['likes' => function ($like) {
+            $like->where('user_id', auth()->user()->id)->select('id', 'user_id', 'post_id');
+        }])
+        ->get();
         return response([
-           'posts'=>Post::orderBy('created_at','desc')->with('user:id,name,image')->withCount('comments','likes')->get()
-        ],200);
+            'posts' => $posts
+        ], 200);
     }
 
     public function show($id){
@@ -25,10 +38,11 @@ class PostController extends Controller
         $data=$request->validate([
             'body'=>'string|required'
         ]);
+        $image=$this->saveimage($request->image, 'posts');
         $post=Post::create([
             'body'=>$data['body'],
-            'user_id'=>auth()->user()->id
-
+            'user_id'=>auth()->user()->id,
+            'image'=>$image
         ]);
         return response([
             'msg'=>'post successfully created',

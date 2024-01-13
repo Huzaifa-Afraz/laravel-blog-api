@@ -22,6 +22,7 @@ Route::post('/login', [Authcontroller::class, 'login']);
 Route::group(['middleware'=> ['auth:sanctum']],function(){
     // user routes
     Route::get('/user', [Authcontroller::class, 'user']);
+    Route::put('/user', [Authcontroller::class, 'update']);
     Route::post('/logout', [Authcontroller::class, 'logout']);
 
     // post router
@@ -38,6 +39,6 @@ Route::group(['middleware'=> ['auth:sanctum']],function(){
     Route::delete('/comments/{id}',[CommentController::class,'destroy']);
 
     // like or dislike a post
-    Route::get('posts/{id}/likes', [LikeController::class, 'likeordislike'])
+    Route::get('posts/{id}/likes', [LikeController::class, 'likeordislike']);
 
 });
